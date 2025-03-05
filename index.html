@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini AI Chat</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div id="app">
+        <div class="chat-container">
+            <div class="chat-header">
+                <h1>Gemini AI Chat</h1>
+            </div>
+            
+            <div v-if="!username" class="login-container">
+                <div class="login-box">
+                    <h2>Welcome to Gemini AI Chat</h2>
+                    <p>Chat with Gemini AI and other users in real-time</p>
+                    <input 
+                        type="text" 
+                        v-model="tempUsername" 
+                        placeholder="Enter your username"
+                        @keyup.enter="setUsername"
+                    >
+                    <button @click="setUsername">Start Chatting</button>
+                </div>
+            </div>
+
+            <div v-else class="chat-main">
+                <div class="chat-layout">
+                    <div class="online-users">
+                        <h3>Online Users ({{ onlineUsers.length }})</h3>
+                        <ul>
+                            <li v-for="user in onlineUsers" 
+                                :key="user" 
+                                :class="{ 
+                                    'current-user': user === username,
+                                    'ai-user': user === 'AI Assistant'
+                                }">
+                                <i class="fas" :class="user === 'AI Assistant' ? 'fa-robot' : 'fa-user'"></i>
+                                {{ user }}
+                                <span v-if="user === username">(you)</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="chat-content">
+                        <div class="messages" ref="messageContainer">
+                            <div v-for="msg in messages" :key="msg.timestamp" 
+                                 :class="['message-group', {
+                                     'own': msg.username === username,
+                                     'ai': msg.username === 'AI Assistant'
+                                 }]">
+                                <div :class="['message', msg.type]">
+                                    <div class="message-header">
+                                        <span class="username" v-if="msg.type !== 'system'">
+                                            <i class="fas" :class="msg.username === 'AI Assistant' ? 'fa-robot' : 'fa-user'"></i>
+                                            {{ msg.username }}
+                                        </span>
+                                        <span class="timestamp">{{ formatTime(msg.timestamp) }}</span>
+                                    </div>
+                                    <div class="content">{{ msg.message }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-input">
+                            <form @submit.prevent="sendMessage" class="input-form">
+                                <input 
+                                    type="text" 
+                                    v-model="newMessage" 
+                                    placeholder="Type your message..." 
+                                    :disabled="!isConnected"
+                                >
+                                <button type="submit" :disabled="!isConnected || !newMessage.trim()">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/app.js"></script>
+</body>
+</html>
